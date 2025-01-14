@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+	"tiny-url/storage"
 	"tiny-url/utils"
 )
 
-var urlStorage = make(map[string]string)
+var database *storage.SQLiteDatabase
 
 type URLPayload struct {
 	URL string `json:"url" binding:"required,url"`
@@ -34,10 +36,13 @@ func createShortLink(c *gin.Context) {
 	fmt.Print(url)
 
 	urlPostfix := utils.ShortenUrl(url, 8)
-	fmt.Printf("\nShorter url postfix %s", urlPostfix)
+	fmt.Printf("\nShorter url postfix %s for full url %s", urlPostfix, url)
 
-	urlStorage[urlPostfix] = url
-	fmt.Printf("\nStorage %s", urlStorage)
+	err := database.InsertURL(urlPostfix, url)
+	if err != nil {
+		responseWithError(c, http.StatusNotFound, "Failed to load URL from DB")
+		return
+	}
 
 	c.JSON(
 		http.StatusOK,
@@ -51,9 +56,9 @@ func createShortLink(c *gin.Context) {
 func redirectByShortLink(c *gin.Context) {
 	shortHash := c.Param("shortHash")
 
-	fullUrl, fullUrlExists := urlStorage[shortHash]
+	fullUrl, err := database.GetURL(shortHash)
 
-	if !fullUrlExists {
+	if err != nil {
 		responseWithError(c, http.StatusBadRequest, "Failed to find URL")
 		return
 	}
@@ -65,7 +70,16 @@ func redirectByShortLink(c *gin.Context) {
 }
 
 func main() {
-	fmt.Print("Hello world!")
+	fmt.Println("Starting DB initialization")
+
+	var err error
+	database, err = storage.InitializeSQLiteDatabase("./tinuurl.db")
+	if err != nil {
+		log.Fatalf("Failed to initialize db: %v", err)
+	}
+	defer database.Close()
+
+	fmt.Println("Succesfull DB initiazliation")
 
 	r := gin.Default()
 	r.GET("/:shortHash", redirectByShortLink)
