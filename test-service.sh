@@ -1,0 +1,6 @@
+curl -X POST http://0.0.0.0:8080/create \
+-H "Content-Type: application/json" \
+-d '{
+  "URL": "http://vtitko.com"
+}'
+

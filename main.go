@@ -33,13 +33,31 @@ func createShortLink(c *gin.Context) {
 	}
 
 	url := payload.URL
-	fmt.Print(url)
+	fmt.Println(url)
 
-	urlPostfix := utils.ShortenUrl(url, 8)
+	// Check if given link already exists in DB
+	// If exists, return value retrieved from DB
+	urlPostfix, err := database.GetShortURL(url)
+	fmt.Printf("URL postfix retrieved from DB %v, with err %v\n", urlPostfix, err)
+
+	if err == nil {
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"message": "URL recieved succesfully",
+				"url": url,
+				"short_postfix": urlPostfix,
+			},
+		)
+		return
+	}
+
+	urlPostfix = utils.ShortenUrl(url, 8)
 	fmt.Printf("\nShorter url postfix %s for full url %s", urlPostfix, url)
 
-	err := database.InsertURL(urlPostfix, url)
+	err = database.InsertURL(urlPostfix, url)
 	if err != nil {
+		fmt.Println(err)
 		responseWithError(c, http.StatusNotFound, "Failed to load URL from DB")
 		return
 	}
@@ -48,7 +66,8 @@ func createShortLink(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"message": "URL recieved succesfully",
-			"url":     url,
+			"url": url,
+			"short_postfix": urlPostfix,
 		},
 	)
 }
@@ -56,7 +75,7 @@ func createShortLink(c *gin.Context) {
 func redirectByShortLink(c *gin.Context) {
 	shortHash := c.Param("shortHash")
 
-	fullUrl, err := database.GetURL(shortHash)
+	fullUrl, err := database.GetFullURL(shortHash)
 
 	if err != nil {
 		responseWithError(c, http.StatusBadRequest, "Failed to find URL")
@@ -73,7 +92,7 @@ func main() {
 	fmt.Println("Starting DB initialization")
 
 	var err error
-	database, err = storage.InitializeSQLiteDatabase("./tinuurl.db")
+	database, err = storage.InitializeSQLiteDatabase("./tinyurl.db")
 	if err != nil {
 		log.Fatalf("Failed to initialize db: %v", err)
 	}
