@@ -16,10 +16,6 @@ type FullLinkPayload struct {
 	URL string `json:"url" binding:"required,url"`
 }
 
-type ShortLinkPayload struct {
-	hash string `json:"hash" binding:"required"`
-}
-
 func responseWithError(c *gin.Context, statusCode int, message string) {
 	c.JSON(
 		statusCode,

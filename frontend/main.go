@@ -15,15 +15,6 @@ type LinkResponse struct {
 	ShortPostfix string `json:"short_postfix"`
 }
 
-func responseWithError(c *gin.Context, statusCode int, message string) {
-	c.JSON(
-		statusCode,
-		gin.H{
-			"error": message,
-		},
-	)
-}
-
 func serveHome(c *gin.Context) {
 	resp, _ := http.Get("http://0.0.0.0:8080/get_bindings")
 
