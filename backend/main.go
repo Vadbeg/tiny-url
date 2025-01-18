@@ -12,8 +12,12 @@ import (
 
 var database *storage.SQLiteDatabase
 
-type URLPayload struct {
+type FullLinkPayload struct {
 	URL string `json:"url" binding:"required,url"`
+}
+
+type ShortLinkPayload struct {
+	hash string `json:"hash" binding:"required"`
 }
 
 func responseWithError(c *gin.Context, statusCode int, message string) {
@@ -26,7 +30,7 @@ func responseWithError(c *gin.Context, statusCode int, message string) {
 }
 
 func createShortLink(c *gin.Context) {
-	var payload URLPayload
+	var payload FullLinkPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		fmt.Println(err, payload)
@@ -90,6 +94,26 @@ func redirectByShortLink(c *gin.Context) {
 	)
 }
 
+func getLinkByHash(c *gin.Context) {
+	hash := c.Param("shortHash")
+	fmt.Println("hash", hash)
+
+	fullUrl, err := database.GetFullURL(hash)
+
+	if err != nil {
+		responseWithError(c, http.StatusBadRequest, "Failed to find URL")
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"full_url":      fullUrl,
+			"short_postfix": hash,
+		},
+	)
+}
+
 func getAllBindings(c *gin.Context) {
 	bindings, err := database.GetAllBindings()
 
@@ -120,6 +144,7 @@ func main() {
 
 	r.GET("/:shortHash", redirectByShortLink)
 	r.GET("/get_bindings", getAllBindings)
+	r.GET("/get_url/:shortHash", getLinkByHash)
 	r.POST("/create", createShortLink)
 
 	r.Run()
