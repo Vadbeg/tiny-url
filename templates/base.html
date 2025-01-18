@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tiny URL</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"
+        integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="chatbox">
+            {{ range .bindings }}
+            <div>
+                <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
+                <strong>Full URL:</strong> {{ .FullURL }}
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</body>
+
+</html>
