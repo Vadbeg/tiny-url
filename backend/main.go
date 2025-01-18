@@ -108,7 +108,7 @@ func main() {
 	fmt.Println("Starting DB initialization")
 
 	var err error
-	database, err = storage.InitializeSQLiteDatabase("./tinyurl.db")
+	database, err = storage.InitializeSQLiteDatabase("./storage/tinyurl.db")
 	if err != nil {
 		log.Fatalf("Failed to initialize db: %v", err)
 	}
