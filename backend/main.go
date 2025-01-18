@@ -29,6 +29,7 @@ func createShortLink(c *gin.Context) {
 	var payload URLPayload
 
 	if err := c.ShouldBindJSON(&payload); err != nil {
+		fmt.Println(err, payload)
 		responseWithError(c, http.StatusBadRequest, "Failed to parse URL")
 		return
 	}
@@ -103,36 +104,6 @@ func getAllBindings(c *gin.Context) {
 	)
 }
 
-func serveHome(c *gin.Context) {
-	bindingsMap, err := database.GetAllBindings()
-	if err != nil {
-		c.HTML(http.StatusInternalServerError, "base.html", gin.H{"bindings": nil})
-		return
-	}
-
-	// Convert map[string]string to a slice of structs
-	type Binding struct {
-		FullURL  string
-		ShortURL string
-	}
-
-	var bindings []Binding
-	for fullURL, shortURL := range bindingsMap {
-		bindings = append(bindings, Binding{FullURL: fullURL, ShortURL: shortURL})
-	}
-
-	// Debug: Print the bindings
-	fmt.Printf("Bindings retrieved: %+v\n", bindings)
-
-	c.HTML(
-		http.StatusOK,
-		"base.html",
-		gin.H{
-			"bindings": bindings,
-		},
-	)
-}
-
 func main() {
 	fmt.Println("Starting DB initialization")
 
@@ -147,13 +118,9 @@ func main() {
 
 	r := gin.Default()
 
-	r.LoadHTMLGlob("templates/*")
-
 	r.GET("/:shortHash", redirectByShortLink)
 	r.GET("/get_bindings", getAllBindings)
 	r.POST("/create", createShortLink)
-
-	r.GET("/", serveHome)
 
 	r.Run()
 }

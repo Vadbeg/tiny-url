@@ -20,6 +20,10 @@
             {{ end }}
         </div>
     </div>
+    <form id="form" hx-post="/create">
+        <input type="text" name="URL" placeholder="Enter URL" required>
+        <button type="submit">Shorten</button>
+    </form>
 </body>
 
 </html>

@@ -1,8 +1,5 @@
-
-
 build:
-	go build
+	docker compose build
 
-build-run:
-	go build
-	./tiny-url
+run:
+	docker compose up
