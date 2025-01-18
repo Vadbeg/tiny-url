@@ -48,6 +48,27 @@ func (s *SQLiteDatabase) GetShortURL(fullURL string) (string, error) {
 	return shortHash, err
 }
 
+func (s *SQLiteDatabase) GetAllBindings() (map[string]string, error) {
+	allBindings := make(map[string]string)
+
+	rows, err := s.db.Query("SELECT full_url, short_hash FROM urls")
+
+	if err != nil {
+		return allBindings, err
+	}
+
+	for rows.Next() {
+		var fullURL string
+		var shortHash string
+		err = rows.Scan(&fullURL, &shortHash)
+		if err == nil {
+			allBindings[fullURL] = shortHash
+		}
+	}
+
+	return allBindings, nil
+}
+
 func (s *SQLiteDatabase) Close() error {
 	return s.db.Close()
 }

@@ -44,8 +44,8 @@ func createShortLink(c *gin.Context) {
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"message": "URL recieved succesfully",
-				"url": url,
+				"message":       "URL recieved succesfully",
+				"url":           url,
 				"short_postfix": urlPostfix,
 			},
 		)
@@ -65,8 +65,8 @@ func createShortLink(c *gin.Context) {
 	c.JSON(
 		http.StatusOK,
 		gin.H{
-			"message": "URL recieved succesfully",
-			"url": url,
+			"message":       "URL recieved succesfully",
+			"url":           url,
 			"short_postfix": urlPostfix,
 		},
 	)
@@ -88,6 +88,20 @@ func redirectByShortLink(c *gin.Context) {
 	)
 }
 
+func getAllBindings(c *gin.Context) {
+	bindings, err := database.GetAllBindings()
+
+	if err != nil {
+		responseWithError(c, http.StatusNotFound, "Failed to query bindings")
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		bindings,
+	)
+}
+
 func main() {
 	fmt.Println("Starting DB initialization")
 
@@ -102,6 +116,7 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/:shortHash", redirectByShortLink)
+	r.GET("/get_bindings", getAllBindings)
 	r.POST("/create", createShortLink)
 
 	r.Run()

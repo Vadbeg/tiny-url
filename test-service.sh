@@ -4,3 +4,5 @@ curl -X POST http://0.0.0.0:8080/create \
   "URL": "http://vtitko.com"
 }'
 
+
+curl -X GET http://0.0.0.0:8080/get_bindings
