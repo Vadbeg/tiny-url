@@ -110,6 +110,19 @@ func getLinkByHash(c *gin.Context) {
 	)
 }
 
+func removeLinkByHash(c *gin.Context) {
+	hash := c.Param("shortHash")
+
+	err := database.RemoveByShortURL(hash)
+
+	if err != nil {
+		responseWithError(c, http.StatusBadRequest, "Failed to remove URL")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "URL removed successfully"})
+}
+
 func getAllBindings(c *gin.Context) {
 	bindings, err := database.GetAllBindings()
 
@@ -142,6 +155,7 @@ func main() {
 	r.GET("/get_bindings", getAllBindings)
 	r.GET("/get_url/:shortHash", getLinkByHash)
 	r.POST("/create", createShortLink)
+	r.POST("/remove/:shortHash", removeLinkByHash)
 
 	r.Run()
 }

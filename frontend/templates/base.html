@@ -89,6 +89,7 @@
             <div class="url-entry">
                 <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
                 <strong>Full URL:</strong> <span style="word-break: break-all;">{{ .FullURL }}</span>
+                <button hx-delete="/remove/{{ .ShortURL }}" hx-target="#chatbox" hx-swap="innerHTML">Remove</button>
             </div>
             {{ end }}
         </div>

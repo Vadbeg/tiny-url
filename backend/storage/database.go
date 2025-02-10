@@ -49,6 +49,11 @@ func (s *SQLiteDatabase) GetShortURL(fullURL string) (string, error) {
 	return shortHash, err
 }
 
+func (s *SQLiteDatabase) RemoveByShortURL(shortHash string) error {
+	_, err := s.db.Exec("DELETE FROM urls WHERE short_hash = ?", shortHash)
+	return err
+}
+
 func (s *SQLiteDatabase) GetAllBindings() (map[string]string, error) {
 	allBindings := make(map[string]string)
 

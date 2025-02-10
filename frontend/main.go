@@ -140,6 +140,35 @@ func createShortLink(c *gin.Context) {
 	)
 }
 
+func removeLink(c *gin.Context) {
+	hash := c.Param("shortHash")
+
+	requestUrl := "http://0.0.0.0:8080/remove/" + hash
+
+	resp, _ := http.Post(requestUrl, "application/json", nil)
+
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Failed to remove link: %d", resp.StatusCode)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to remove link"})
+		return
+	}
+
+	bindings, err := getAllBindings()
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	c.HTML(
+		http.StatusOK,
+		"chatbox.html",
+		gin.H{
+			"bindings": bindings,
+		},
+	)
+}
+
+
 func main() {
 	r := gin.Default()
 
@@ -153,6 +182,7 @@ func main() {
 	r.GET("/", serveHome)
 	r.GET("/:shortHash", redirectByShortLink)
 	r.POST("/create", createShortLink)
-
+	r.DELETE("/remove/:shortHash", removeLink)
+	
 	r.Run("0.0.0.0:8081")
 }
