@@ -32,6 +32,11 @@
             margin-bottom: 10px;
             border-radius: 5px;
             transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
         .url-entry:hover {
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -46,6 +51,7 @@
         form {
             display: flex;
             gap: 10px;
+            margin-bottom: 30px;
         }
         input[type="text"] {
             flex: 1;
@@ -72,6 +78,16 @@
         button:hover {
             background-color: #1976D2;
         }
+        .remove-btn {
+            background-color: #dc3545;
+            margin-left: auto;
+        }
+        .remove-btn:hover {
+            background-color: #c82333;
+        }
+        .url-info {
+            flex: 1;
+        }
     </style>
 </head>
 
@@ -87,9 +103,11 @@
         <div id="chatbox">
             {{ range .bindings }}
             <div class="url-entry">
-                <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
-                <strong>Full URL:</strong> <span style="word-break: break-all;">{{ .FullURL }}</span>
-                <button hx-delete="/remove/{{ .ShortURL }}" hx-target="#chatbox" hx-swap="innerHTML">Remove</button>
+                <div class="url-info">
+                    <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
+                    <strong>Full URL:</strong> <span style="word-break: break-all;">{{ .FullURL }}</span>
+                </div>
+                <button class="remove-btn" hx-delete="/remove/{{ .ShortURL }}" hx-target="#chatbox" hx-swap="innerHTML">Remove</button>
             </div>
             {{ end }}
         </div>
