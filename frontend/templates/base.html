@@ -7,23 +7,91 @@
     <script src="https://unpkg.com/htmx.org@1.9.4"
         integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV"
         crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        #chatbox {
+            margin-bottom: 30px;
+        }
+        .url-entry {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        .url-entry:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .url-entry a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .url-entry a:hover {
+            text-decoration: underline;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        button {
+            padding: 12px 24px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #1976D2;
+        }
+    </style>
 </head>
 
 <body>
     <div id="container">
+        <h1 style="text-align: center; color: #333; margin-bottom: 30px;">URL Shortener</h1>
+        
+        <form id="form" hx-post="/create" hx-target="#chatbox" hx-swap="innerHTML">
+            <input type="text" name="URL" placeholder="Enter URL to shorten..." required>
+            <button type="submit">Shorten</button>
+        </form>
+
         <div id="chatbox">
             {{ range .bindings }}
-            <div>
+            <div class="url-entry">
                 <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
-                <strong>Full URL:</strong> {{ .FullURL }}
+                <strong>Full URL:</strong> <span style="word-break: break-all;">{{ .FullURL }}</span>
             </div>
             {{ end }}
         </div>
-
-        <form id="form" hx-post="/create" hx-target="#container" hx-swap="innerHTML">
-            <input type="text" name="URL" placeholder="Enter URL" required>
-            <button type="submit">Shorten</button>
-        </form>
     </div>
 </body>
 

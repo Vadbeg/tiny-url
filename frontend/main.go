@@ -133,7 +133,7 @@ func createShortLink(c *gin.Context) {
 
 	c.HTML(
 		http.StatusOK,
-		"base.html",
+		"chatbox.html",
 		gin.H{
 			"bindings": bindings,
 		},
@@ -144,6 +144,11 @@ func main() {
 	r := gin.Default()
 
 	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+		return
+	})
 
 	r.GET("/", serveHome)
 	r.GET("/:shortHash", redirectByShortLink)

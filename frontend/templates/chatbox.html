@@ -1,0 +1,8 @@
+<div id="chatbox">
+    {{ range .bindings }}
+    <div class="url-entry">
+        <strong>Short URL:</strong> <a href="/{{ .ShortURL }}" target="_blank">{{ .ShortURL }}</a> <br>
+        <strong>Full URL:</strong> <span style="word-break: break-all;">{{ .FullURL }}</span>
+    </div>
+    {{ end }}
+</div>
