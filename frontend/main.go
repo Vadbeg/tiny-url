@@ -11,7 +11,15 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 )
+
+const (
+	predifinedUsername = "vadbeg"
+	predifinedPassword = "123456"
+)
+
 
 type LinkResponse struct {
 	FullURL      string `json:"full_url"`
@@ -168,20 +176,68 @@ func removeLink(c *gin.Context) {
 	)
 }
 
+func authRequired(c *gin.Context) {
+	session := sessions.Default(c)
+	user := session.Get("user")
+
+	if user == nil {
+		c.Redirect(http.StatusSeeOther, "/login")
+		c.Abort()
+		return
+	}
+
+	c.Next()
+}
+
+func loginHandler(c *gin.Context) {
+	if c.Request.Method == "GET" {
+		c.HTML(http.StatusOK, "login.html", gin.H{})
+		return
+	}
+
+	username := c.PostForm("username")
+	password := c.PostForm("password")
+
+	if username == predifinedUsername && password == predifinedPassword {
+		session := sessions.Default(c)
+
+		session.Set("user", username)
+		session.Save()
+		c.Redirect(http.StatusSeeOther, "/")
+		return
+	}
+
+	c.HTML(
+		http.StatusUnauthorized, "login.html", gin.H{
+			"error": "Invalid credntials",
+		},
+	)
+}
+
+
 func main() {
 	r := gin.Default()
 
+	store := cookie.NewStore([]byte("secret_key"))
+	r.Use(sessions.Sessions("session", store))
+
 	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/login", loginHandler)
+	r.POST("/login", loginHandler)
 
 	r.GET("/favicon.ico", func(c *gin.Context) {
 		c.Status(http.StatusNoContent)
-		return
 	})
 
-	r.GET("/", serveHome)
-	r.GET("/:shortHash", redirectByShortLink)
-	r.POST("/create", createShortLink)
-	r.DELETE("/remove/:shortHash", removeLink)
+	protected := r.Group("/")
+	protected.Use(authRequired)
+	{
+		protected.GET("/", serveHome)
+		protected.GET("/:shortHash", redirectByShortLink)
+		protected.POST("/create", createShortLink)
+		protected.DELETE("/remove/:shortHash", removeLink)
+	}
 
 	r.Run("0.0.0.0:8081")
 }
