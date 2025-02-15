@@ -168,7 +168,6 @@ func removeLink(c *gin.Context) {
 	)
 }
 
-
 func main() {
 	r := gin.Default()
 
@@ -183,6 +182,6 @@ func main() {
 	r.GET("/:shortHash", redirectByShortLink)
 	r.POST("/create", createShortLink)
 	r.DELETE("/remove/:shortHash", removeLink)
-	
+
 	r.Run("0.0.0.0:8081")
 }
