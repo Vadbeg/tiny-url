@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"sort"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -20,6 +22,8 @@ const (
 	predifinedPassword = "123456"
 )
 
+// Generate random session key once when binary starts
+var globalSessionKey = fmt.Sprintf("session_%d_%d", time.Now().UnixNano(), rand.Int63())
 
 type LinkResponse struct {
 	FullURL      string `json:"full_url"`
@@ -178,7 +182,7 @@ func removeLink(c *gin.Context) {
 
 func authRequired(c *gin.Context) {
 	session := sessions.Default(c)
-	user := session.Get("user")
+	user := session.Get(globalSessionKey)
 
 	if user == nil {
 		c.Redirect(http.StatusSeeOther, "/login")
@@ -198,28 +202,28 @@ func loginHandler(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
+	log.Println(predifinedUsername, username)
+	log.Println(predifinedPassword, password)
+
 	if username == predifinedUsername && password == predifinedPassword {
 		session := sessions.Default(c)
 
-		session.Set("user", username)
+		session.Set(globalSessionKey, username)
 		session.Save()
 		c.Redirect(http.StatusSeeOther, "/")
 		return
 	}
 
-	c.HTML(
-		http.StatusUnauthorized, "login.html", gin.H{
-			"error": "Invalid credntials",
-		},
-	)
-}
+	log.Println("you are fucking here")
 
+	c.String(http.StatusOK, "<div class='error'>Invalid credentials</div>")
+}
 
 func main() {
 	r := gin.Default()
 
 	store := cookie.NewStore([]byte("secret_key"))
-	r.Use(sessions.Sessions("session", store))
+	r.Use(sessions.Sessions(globalSessionKey, store))
 
 	r.LoadHTMLGlob("templates/*")
 

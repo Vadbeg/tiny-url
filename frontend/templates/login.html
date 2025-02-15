@@ -2,6 +2,9 @@
 <html>
 <head>
     <title>Login</title>
+    <script src="https://unpkg.com/htmx.org@1.9.4"
+        integrity="sha384-zUfuhFKKZCbHTY6aRR46gxiqszMk5tcHjsVFxnUo8VMus4kHGVdIYVbOYYNlKmHV"
+        crossorigin="anonymous"></script>
     <style>
         .login-container {
             max-width: 400px;
@@ -36,12 +39,10 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div id="login-container" class="login-container">
         <h2>Login</h2>
-        {{if .error}}
-        <div class="error">{{.error}}</div>
-        {{end}}
-        <form method="POST" action="/login">
+        <div id="error-message"></div>
+        <form hx-post="/login" hx-target="#error-message" hx-swap="innerHTML">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
